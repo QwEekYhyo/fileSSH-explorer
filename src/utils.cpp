@@ -15,6 +15,33 @@ namespace ip_handling {
         }
         return true;
     }
+
+    bool validate_mac(const std::string mac_addr) {
+        std::vector<std::string> parsed = string_utils::split(mac_addr, ":");
+        if (parsed.size() != 6) {
+            return false;
+        }
+        int byte;
+        for (std::string byte_string : parsed) {
+            std::istringstream(byte_string) >> std::hex >> byte;
+            if (byte < 0 || byte > 255) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // it is assumed ip_addr has been validated
+    bool check_if_local(const std::string ip_addr) {
+        std::vector<std::string> parsed = string_utils::split(ip_addr, ".");
+        std::string first_byte = parsed.at(0);
+        if (first_byte == "10") return true;
+        else if (first_byte == "172") {
+            int second_byte = std::stoi(parsed.at(1));
+            return second_byte >= 16 && second_byte <= 31;
+        }
+        return first_byte == "192" && parsed.at(1) == "168";
+    }
 }
 
 namespace string_utils {
